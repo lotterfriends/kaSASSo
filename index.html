@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <style>
+      body {
+        font-family: monospace;
+      }
+
+      .container {
+        max-width: 850px;
+        margin: 0 auto;
+      }
+
+      .color-description {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .color {
+        width: 100px;
+        height: 100px;
+        background-color: darkcyan;
+        border: 1px solid #000;
+        display: flex;
+        justify-content: flex-end;
+        flex-direction: column;
+        margin-right: 10px;
+      }
+
+      .color-input {
+        opacity: 0;
+      }
+
+      .colors {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .color-itm {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+      }
+
+      .color-itm.selected {
+        outline: 2px solid #000;
+        z-index: 1;
+      }
+
+      .copy {
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 10px;
+      }
+
+      .color-codes-selected {
+        margin-left: 20px;
+      }
+    </style>
+    <title>kaSASSo</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>kaSASSo</h1>
+      <div class="color-description">
+        <label class="color">
+          <input class="color-input" type="color" />
+        </label>
+        <div class="color-codes"></div>
+        <div class="color-codes-selected"></div>
+      </div>
+      <div>
+        <h2><a href="https://sass-lang.com/documentation/modules/color#lighten" target="_blank">lighten</a></h2>
+        <div class="lighten"></div>
+      </div>
+      <div>
+        <h2><a href="https://sass-lang.com/documentation/modules/color#darken" target="_blank">darken</a></h2>
+        <div class="darken"></div>
+      </div>
+      <div>
+        <h2><a href="https://sass-lang.com/documentation/modules/color#saturate" target="_blank">saturate</a></h2>
+        <div class="saturate"></div>
+      </div>
+      <div>
+        <h2><a href="https://sass-lang.com/documentation/modules/color#desaturate" target="_blank">desaturate</a></h2>
+        <div class="desaturate"></div>
+      </div>
+      <div>
+        <h2><a href="https://developer.mozilla.org/docs/Web/CSS/CSS_Colors/farbauswahl_werkzeug" target="_blank">rgba</a></h2>
+        <div class="rgba"></div>
+      </div>
+      <div class="copy">&copy; André Tarnowsky, Thanks to <a href="https://github.com/gka/chroma.js">Chroma</a></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <script>
+
+      const lighten = (color, hslPercent) => color.set("hsl.l", color.get("hsl.l") + hslPercent);
+
+      const darken = (color, hslPercent) => lighten(color, -hslPercent);
+
+      const html2Element = (html) => {
+        const template = document.createElement('template');
+        html = html.trim(); // Never return a text node of whitespace as the result
+        template.innerHTML = html;
+        return template.content.firstChild;
+      }
+
+      const reset = () => {
+        document.querySelector('.lighten').innerHTML = '';
+        document.querySelector('.darken').innerHTML = '';
+        document.querySelector('.saturate').innerHTML = '';
+        document.querySelector('.desaturate').innerHTML = '';
+        document.querySelector('.rgba').innerHTML = '';
+      }
+
+      const genColorItm = (color, displayColor, title, displayValue) => {
+        return `
+            <span data-color="${color}" class="color-itm" title="${title}" style="background-color: ${displayColor}">
+              ${displayValue}
+            </span>
+          `;
+      }
+
+      const createColorElements = (color) => {
+        reset();
+        color = chroma(color);
+        const lightenElements = [];
+        const darkenElements = [];
+        const saturateElements = [];
+        const desaturateElements = [];
+        const rgbaElements = [];
+        for (var i = 1; i <= 100; i++) {
+          const lightenColor = lighten(color, i/100);
+          const darkenColor = darken(color, i/100);
+          const colorSaturate = color.saturate(i);
+          const colorDesaturate = color.desaturate(i);
+          const colorRGBA = color.alpha(i/100);
+
+          lightenElements.push(genColorItm(lightenColor, lightenColor.hex(), `lighten(${color}, ${i}%)`, `${i}%`));
+          darkenElements.push(genColorItm(darkenColor, darkenColor.hex(), `darken(${color}, ${i}%)`, `${i}%`));
+          saturateElements.push(genColorItm(colorSaturate, colorSaturate, `saturate(${color}, ${i}%)`, `${i}%`));
+          desaturateElements.push(genColorItm(colorDesaturate, colorDesaturate, `desaturate(${color}, ${i}%)`, `${i}%`));
+          rgbaElements.push(genColorItm(colorRGBA, color.alpha(i/100).css('rgba'), colorRGBA.css('rgba'), i/100));
+
+        }
+        document.querySelector('.lighten').appendChild(html2Element(`<div class="colors">${lightenElements.join('')}</div>`));
+        document.querySelector('.darken').appendChild(html2Element(`<div class="colors">${darkenElements.join('')}</div>`));
+        document.querySelector('.saturate').appendChild(html2Element(`<div class="colors">${saturateElements.join('')}</div>`));
+        document.querySelector('.desaturate').appendChild(html2Element(`<div class="colors">${desaturateElements.join('')}</div>`));
+        document.querySelector('.rgba').appendChild(html2Element(`<div class="colors">${rgbaElements.join('')}</div>`));
+      }
+
+      
+      const genColorElements = (selectedColor) => {
+        createColorElements(selectedColor);
+        document.querySelector('.color').style.backgroundColor = selectedColor;
+        document.querySelector('.color-codes').innerHTML = genColorInfoBlock(selectedColor);
+      }
+
+      const genColorInfoBlock = (selectedColor, link)  => {
+        return `
+          <div>${selectedColor}, </div>
+          <div>${chroma(selectedColor).css('rgb')}, </div>
+          <div>${chroma(selectedColor).css('rgba')}, </div>
+          <div>${chroma(selectedColor).css('hsl')}</div>
+          ${chroma(selectedColor).name() !== selectedColor ? `<div>${chroma(selectedColor).name()}</div>` : ''}
+          ${link && link === true ? `<div><a class="color-opener" href="${selectedColor}">open</a></div>` : ''}
+        `;
+      }
+
+
+      document.addEventListener("click", function(event) {
+        event = event || window.event;
+        var el = event.target || event.srcElement;
+        if (el.classList.contains('color-itm')) {
+          const selected = document.querySelector('.color-itm.selected');
+          if (selected) {
+            selected.classList.remove('selected');
+          }
+          el.classList.add('selected');
+          const selectedColor = el.dataset && el.dataset.color ? el.dataset.color : '';
+          if (selectedColor && selectedColor.length) {
+            document.querySelector('.color-codes-selected').innerHTML = genColorInfoBlock(selectedColor, true);
+          }
+
+        }
+        
+        if (el.classList.contains('color-opener')) {
+          genColorElements(el.getAttribute('href'));
+        }
+      }, true);
+
+
+      document.querySelector('input[type=color]').addEventListener('change', (e) => {
+        genColorElements(e.target.value);
+      });
+
+      if (window.location.hash) {
+        genColorElements(window.location.hash);
+      } else {
+        genColorElements('#008b8b');
+      }
+
+    </script>
+  </body>
+</html>
