@@ -29,7 +29,7 @@
         cursor: pointer;
         width: 100px;
         height: 100px;
-        background-color: darkcyan;
+        background-color: #CF649A;
         border: 1px solid #000;
         display: flex;
         justify-content: flex-end;
@@ -203,6 +203,8 @@
       
       const genColorElements = (selectedColor) => {
         resetSelectd();
+        window.location.hash = selectedColor.replace(/#/, '');
+        window.scroll(0, 0);
         createColorElements(selectedColor);
         document.querySelector('.color').style.backgroundColor = selectedColor;
         document.querySelector('.color-codes').innerHTML = genColorInfoBlock(selectedColor);
@@ -255,6 +257,17 @@
 
 
 
+      document.addEventListener("dblclick", function(event) {
+        event = event || window.event;
+        var el = event.target || event.srcElement;
+        if (el.classList.contains('color-itm')) {
+          const selectedColor = el.dataset && el.dataset.color ? el.dataset.color : '';
+          if (selectedColor && selectedColor.length) {
+            genColorElements(selectedColor);
+          }
+        }
+      });
+  
       document.addEventListener("click", function(event) {
         event = event || window.event;
         var el = event.target || event.srcElement;
@@ -292,7 +305,7 @@
       if (window.location.hash) {
         genColorElements(window.location.hash);
       } else {
-        genColorElements('#008b8b');
+        genColorElements('#CF649A');
       }
 
     </script>
