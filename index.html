@@ -211,7 +211,7 @@
       const genColorInfoBlock = (selectedColor, usedFunction, link)  => {
         return `
           <div class="copy-me">${selectedColor}</div>
-          <div class="copy-me">${chroma(selectedColor).css('rgb')}</div>
+          <div class="copy-me">${chroma(selectedColor).alpha(1).css('rgb')}</div>
           <div class="copy-me">${chroma(selectedColor).css('rgba')}</div>
           <div class="copy-me">${chroma(selectedColor).css('hsl')}</div>
           ${chroma(selectedColor).name() !== selectedColor ? `<div class="copy-me">${chroma(selectedColor).name()}</div>` : ''}
