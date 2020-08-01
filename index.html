@@ -9,6 +9,12 @@
         font-family: monospace;
       }
 
+      .headline {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
       .container {
         max-width: 850px;
         margin: 0 auto;
@@ -20,6 +26,7 @@
       }
 
       .color {
+        cursor: pointer;
         width: 100px;
         height: 100px;
         background-color: darkcyan;
@@ -28,6 +35,10 @@
         justify-content: flex-end;
         flex-direction: column;
         margin-right: 10px;
+      }
+
+      .copy-me {
+        cursor: pointer;
       }
 
       .color-input {
@@ -41,6 +52,7 @@
       }
 
       .color-itm {
+        cursor: pointer;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -62,12 +74,36 @@
       .color-codes-selected {
         margin-left: 20px;
       }
+
+      .copy-hint {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        background: #ffff;
+        border: 2px solid red;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 20px;
+        font-size: 1.5em;
+        z-index: 2;
+        padding: 10px;
+      }
+
+      a[target="_blank"]::after {
+        content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+        margin: 0 3px 0 5px;
+      }
+
+      .logo span {
+        color: #CF649A;
+        font-weight: lighter;
+      }
     </style>
     <title>kaSASSo</title>
   </head>
   <body>
     <div class="container">
-      <h1>kaSASSo</h1>
+      <h1 class="logo">ka<span>SASS</span>o</h1>
       <div class="color-description">
         <label class="color">
           <input class="color-input" type="color" />
@@ -76,26 +112,27 @@
         <div class="color-codes-selected"></div>
       </div>
       <div>
-        <h2><a href="https://sass-lang.com/documentation/modules/color#lighten" target="_blank">lighten</a></h2>
+        <h2 class="headline"><a href="https://sass-lang.com/documentation/modules/color#lighten" target="_blank">lighten</a></h2>
         <div class="lighten"></div>
       </div>
       <div>
-        <h2><a href="https://sass-lang.com/documentation/modules/color#darken" target="_blank">darken</a></h2>
+        <h2 class="headline"><a href="https://sass-lang.com/documentation/modules/color#darken" target="_blank">darken</a><a class="to-top" href="javascript:void 0">to top</a></h2>
         <div class="darken"></div>
       </div>
       <div>
-        <h2><a href="https://sass-lang.com/documentation/modules/color#saturate" target="_blank">saturate</a></h2>
+        <h2 class="headline"><a href="https://sass-lang.com/documentation/modules/color#saturate" target="_blank">saturate</a><a class="to-top" href="javascript:void 0">to top</a></h2>
         <div class="saturate"></div>
       </div>
       <div>
-        <h2><a href="https://sass-lang.com/documentation/modules/color#desaturate" target="_blank">desaturate</a></h2>
+        <h2 class="headline"><a href="https://sass-lang.com/documentation/modules/color#desaturate" target="_blank">desaturate</a><a class="to-top" href="javascript:void 0">to top</a></h2>
         <div class="desaturate"></div>
       </div>
       <div>
-        <h2><a href="https://developer.mozilla.org/docs/Web/CSS/CSS_Colors/farbauswahl_werkzeug" target="_blank">rgba</a></h2>
+        <h2 class="headline"><a href="https://developer.mozilla.org/docs/Web/CSS/CSS_Colors/farbauswahl_werkzeug" target="_blank">rgba</a><a class="to-top" href="javascript:void 0">to top</a></h2>
         <div class="rgba"></div>
       </div>
-      <div class="copy">&copy; André Tarnowsky, Thanks to <a href="https://github.com/gka/chroma.js">Chroma</a></div>
+      <div class="copy">&copy; André Tarnowsky, Thanks to <a target="_blank" href="https://github.com/gka/chroma.js">Chroma</a></div>
+      <div class="copy-hint">The text was copied to the clipboard.</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
@@ -120,6 +157,8 @@
         document.querySelector('.rgba').innerHTML = '';
       }
 
+      const resetSelectd = () => document.querySelector('.color-codes-selected').innerHTML = '';
+
       const genColorItm = (color, displayColor, title, displayValue) => {
         return `
             <span data-color="${color}" class="color-itm" title="${title}" style="background-color: ${displayColor}">
@@ -136,7 +175,7 @@
         const saturateElements = [];
         const desaturateElements = [];
         const rgbaElements = [];
-        for (var i = 1; i <= 100; i++) {
+        for (let i = 1; i <= 100; i++) {
           const lightenColor = lighten(color, i/100);
           const darkenColor = darken(color, i/100);
           const colorSaturate = color.saturate(i);
@@ -159,21 +198,57 @@
 
       
       const genColorElements = (selectedColor) => {
+        resetSelectd();
         createColorElements(selectedColor);
         document.querySelector('.color').style.backgroundColor = selectedColor;
         document.querySelector('.color-codes').innerHTML = genColorInfoBlock(selectedColor);
       }
 
-      const genColorInfoBlock = (selectedColor, link)  => {
+      const genColorInfoBlock = (selectedColor, usedFunction, link)  => {
         return `
-          <div>${selectedColor}, </div>
-          <div>${chroma(selectedColor).css('rgb')}, </div>
-          <div>${chroma(selectedColor).css('rgba')}, </div>
-          <div>${chroma(selectedColor).css('hsl')}</div>
-          ${chroma(selectedColor).name() !== selectedColor ? `<div>${chroma(selectedColor).name()}</div>` : ''}
+          <div class="copy-me">${selectedColor}</div>
+          <div class="copy-me">${chroma(selectedColor).css('rgb')}</div>
+          <div class="copy-me">${chroma(selectedColor).css('rgba')}</div>
+          <div class="copy-me">${chroma(selectedColor).css('hsl')}</div>
+          ${chroma(selectedColor).name() !== selectedColor ? `<div class="copy-me">${chroma(selectedColor).name()}</div>` : ''}
+          ${typeof usedFunction !== 'undefined' ? `<div class="copy-me">${usedFunction}</div>` : ''}
           ${link && link === true ? `<div><a class="color-opener" href="${selectedColor}">open</a></div>` : ''}
         `;
       }
+
+      const copyTextToClipboard = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.style.position = 'fixed';
+        textArea.style.top = 0;
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = 0;
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.value = text;
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          const success = document.execCommand('copy');
+          if (success) {
+            const copyHint = document.querySelector('.copy-hint');
+            copyHint.style.display = 'block';
+            setTimeout(() => {
+              copyHint.style.removeProperty('display');
+            }, 2000);
+          }
+        } catch (err) {
+          console.log('unable to copy');
+        }
+
+        document.body.removeChild(textArea);
+      }
+
 
 
       document.addEventListener("click", function(event) {
@@ -187,13 +262,21 @@
           el.classList.add('selected');
           const selectedColor = el.dataset && el.dataset.color ? el.dataset.color : '';
           if (selectedColor && selectedColor.length) {
-            document.querySelector('.color-codes-selected').innerHTML = genColorInfoBlock(selectedColor, true);
+            document.querySelector('.color-codes-selected').innerHTML = genColorInfoBlock(selectedColor, el.getAttribute('title'), true);
           }
 
         }
         
         if (el.classList.contains('color-opener')) {
           genColorElements(el.getAttribute('href'));
+        }
+
+        if (el.classList.contains('to-top')) {
+          window.scroll(0, 0)
+        }
+
+        if (el.classList.contains('copy-me')) {
+          copyTextToClipboard(el.innerText);
         }
       }, true);
 
