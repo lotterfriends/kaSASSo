@@ -7,6 +7,13 @@
     <style>
       body {
         font-family: monospace;
+        color: #000;
+        background: #fff;
+      }
+
+      body.dark {
+        color: #fff;
+        background: #000;
       }
 
       .headline {
@@ -94,6 +101,14 @@
         margin: 0 3px 0 5px;
       }
 
+      .dark a {
+        color: #fff;
+      }
+
+      .dark a[target="_blank"]::after {
+        filter: invert(100%);
+      }
+
       .logo span {
         color: #CF649A;
         font-weight: lighter;
@@ -103,7 +118,7 @@
   </head>
   <body>
     <div class="container">
-      <h1 class="logo">ka<span>SASS</span>o</h1>
+      <h1 class="headline"> <span class="logo">ka<span>SASS</span>o</span> <button title="toggle darkmode" class="toggle-darkmode">☀</button></h1>
       <div class="color-description">
         <label class="color">
           <input class="color-input" type="color" />
@@ -255,7 +270,10 @@
         document.body.removeChild(textArea);
       }
 
-
+      const toggleDarkmode = () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('dark', document.body.classList.contains('dark'))
+      }
 
       document.addEventListener("dblclick", function(event) {
         event = event || window.event;
@@ -295,6 +313,10 @@
         if (el.classList.contains('copy-me')) {
           copyTextToClipboard(el.innerText);
         }
+        
+        if (el.classList.contains('toggle-darkmode')) {
+          toggleDarkmode();
+        }
       }, true);
 
 
@@ -306,6 +328,10 @@
         genColorElements(window.location.hash);
       } else {
         genColorElements('#CF649A');
+      }
+
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches || localStorage.getItem('dark') === 'true') {
+        toggleDarkmode();
       }
 
     </script>
